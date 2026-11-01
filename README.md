@@ -2,7 +2,7 @@
 
 [![test](https://github.com/buluterol/turkpin-python/actions/workflows/test.yml/badge.svg)](https://github.com/buluterol/turkpin-python/actions/workflows/test.yml)
 
-Turkpin bayi API'si için Python istemcisi: e-pin oyun ve ürün listesi, sipariş verme, sipariş durumu, sipariş listesi ve bakiye.
+Turkpin bayi API'si için Python istemcisi; Django, Flask ve FastAPI entegrasyonu dahil: e-pin oyun ve ürün listesi, sipariş verme, sipariş durumu, sipariş listesi ve bakiye.
 
 > Bu paket topluluk tarafından yazılmıştır; Turkpin'in resmi paketi değildir. API'nin güncel ve bağlayıcı tanımı için [dev.turkpin.com](https://dev.turkpin.com) dokümanına bakın.
 
@@ -43,6 +43,59 @@ except TurkpinError as e:
 print(tp.get_balance().balance)  # Decimal
 ```
 
+## Ortam değişkenleri
+
+```python
+tp = TurkpinClient.from_env()  # TURKPIN_USERNAME, TURKPIN_PASSWORD, TURKPIN_TEST, TURKPIN_TIMEOUT
+```
+
+## Django
+
+`settings.py`:
+
+```python
+TURKPIN = {
+    "USERNAME": os.environ["TURKPIN_USERNAME"],
+    "PASSWORD": os.environ["TURKPIN_PASSWORD"],
+    "TEST": False,
+    "TIMEOUT": 30,
+}
+```
+
+```python
+from turkpin.contrib.django import get_client
+
+def games(request):
+    return JsonResponse({"games": [g.name for g in get_client().get_games()]})
+```
+
+## Flask
+
+```python
+from turkpin.contrib.flask import Turkpin
+
+app.config.update(TURKPIN_USERNAME="...", TURKPIN_PASSWORD="...", TURKPIN_TEST=True)
+turkpin = Turkpin(app)
+
+@app.get("/balance")
+def balance():
+    return {"balance": str(turkpin.client.get_balance().balance)}
+```
+
+## FastAPI
+
+İstemci senkron çalışır; `async def` yerine düz `def` uç kullanın (FastAPI bunları iş parçacığı havuzunda çalıştırır). Ayarlar ortam değişkenlerinden okunur.
+
+```python
+from fastapi import Depends
+from turkpin import TurkpinClient
+from turkpin.contrib.fastapi import get_turkpin
+
+@app.get("/balance")
+def balance(turkpin: TurkpinClient = Depends(get_turkpin)):
+    return {"balance": str(turkpin.get_balance().balance)}
+```
+
 ## Desteklenen komutlar
 
 | API komutu | Açıklama |
@@ -73,12 +126,13 @@ Listede olmayan komutlar için istemcideki genel `call` metodu kullanılabilir.
 Testler gerçek API'ye bağlanmaz; örnek XML cevaplarıyla çalışır.
 
 ```sh
+pip install django flask fastapi httpx  # isteğe bağlı: entegrasyon testleri
 python -m unittest discover -s tests -t .
 ```
 
 ## English
 
-Python client for the Turkpin dealer API (e-pin games, products, orders, order status, order history, balance). Community-maintained, not an official Turkpin package; see [dev.turkpin.com](https://dev.turkpin.com) for the authoritative API reference. The sandbox (`turkpin.net`) only accepts requests from server IP addresses registered with Turkpin (otherwise error `002`). Install and usage are shown above; method names are in English, while API command and field names follow the original Turkish API.
+Python client for the Turkpin dealer API with Django, Flask and FastAPI integration (e-pin games, products, orders, order status, order history, balance). Community-maintained, not an official Turkpin package; see [dev.turkpin.com](https://dev.turkpin.com) for the authoritative API reference. The sandbox (`turkpin.net`) only accepts requests from server IP addresses registered with Turkpin (otherwise error `002`). Install and usage are shown above; method names are in English, while API command and field names follow the original Turkish API.
 
 ## Lisans
 

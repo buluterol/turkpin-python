@@ -5,15 +5,21 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "turkpin"
 version = "1.0.0"
-description = "Python client for the Turkpin dealer (bayi) API: e-pin games, products, orders and balance."
+description = "Python client for the Turkpin dealer (bayi) API with Django, Flask and FastAPI integration: e-pin games, products, orders and balance."
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.8"
-keywords = ["turkpin", "epin", "e-pin", "api", "sdk"]
+keywords = ["turkpin", "epin", "e-pin", "api", "sdk", "django", "flask", "fastapi"]
 dependencies = []
+
+[project.optional-dependencies]
+django = ["django>=3.2"]
+flask = ["flask>=2.0"]
+fastapi = ["fastapi>=0.100"]
+test = ["django>=3.2", "flask>=2.0", "fastapi>=0.100", "httpx"]
 
 [project.urls]
 Homepage = "https://github.com/buluterol/turkpin-python"
 
 [tool.setuptools]
-packages = ["turkpin"]
+packages = ["turkpin", "turkpin.contrib"]
