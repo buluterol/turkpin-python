@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "turkpin"
+version = "1.0.0"
+description = "Python client for the Turkpin dealer (bayi) API: e-pin games, products, orders and balance."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.8"
+keywords = ["turkpin", "epin", "e-pin", "api", "sdk"]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/buluterol/turkpin-python"
+
+[tool.setuptools]
+packages = ["turkpin"]
