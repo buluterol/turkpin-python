@@ -1,3 +1,4 @@
+import os
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -33,6 +34,16 @@ class TurkpinClient:
         self.url = base_url or (TEST_URL if test else LIVE_URL)
         self.timeout = timeout
         self._transport = transport or _urllib_transport
+
+    @classmethod
+    def from_env(cls, prefix: str = "TURKPIN_", **kwargs) -> "TurkpinClient":
+        """Builds a client from TURKPIN_USERNAME, TURKPIN_PASSWORD, TURKPIN_TEST (1/true) and TURKPIN_TIMEOUT."""
+        env = os.environ
+        if prefix + "TEST" in env:
+            kwargs.setdefault("test", env[prefix + "TEST"].strip().lower() in ("1", "true", "yes", "on"))
+        if prefix + "TIMEOUT" in env:
+            kwargs.setdefault("timeout", float(env[prefix + "TIMEOUT"]))
+        return cls(env.get(prefix + "USERNAME", ""), env.get(prefix + "PASSWORD", ""), **kwargs)
 
     def get_games(self) -> List[Game]:
         p = self.call("epinOyunListesi")
