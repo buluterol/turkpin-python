@@ -14,6 +14,9 @@ from .models import Balance, Epin, Game, Order, OrderInfo, Product
 LIVE_URL = "https://www.turkpin.com/api.php"
 TEST_URL = "https://www.turkpin.net/api.php"
 
+# Sent with every request. urllib's default ("Python-urllib/3.x") is rejected by the Turkpin firewall (HTTP 403).
+USER_AGENT = "turkpin-python/1.0.0"
+
 # (url, form body, timeout seconds) -> response text
 Transport = Callable[[str, bytes, float], str]
 
@@ -123,7 +126,7 @@ class TurkpinClient:
 
 def _urllib_transport(url: str, body: bytes, timeout: float) -> str:
     req = urllib.request.Request(url, data=body, method="POST",
-                                 headers={"Content-Type": "application/x-www-form-urlencoded"})
+                                 headers={"Content-Type": "application/x-www-form-urlencoded", "User-Agent": USER_AGENT})
     try:
         with urllib.request.urlopen(req, timeout=timeout) as res:
             return res.read().decode("utf-8", "replace")

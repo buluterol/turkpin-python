@@ -101,3 +101,30 @@ class ClientTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class UserAgentTest(unittest.TestCase):
+    def test_default_transport_sends_library_user_agent(self):
+        from unittest import mock
+        from turkpin import client as client_module
+
+        captured = {}
+
+        class Res:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *a):
+                return False
+
+            def read(self):
+                return (Path(__file__).parent / "fixtures" / "balance.xml").read_bytes()
+
+        def fake_urlopen(req, timeout):
+            captured["ua"] = req.get_header("User-agent")
+            return Res()
+
+        with mock.patch.object(client_module.urllib.request, "urlopen", fake_urlopen):
+            TurkpinClient("u", "p", test=True).get_balance()
+        self.assertEqual(captured["ua"], client_module.USER_AGENT)
+        self.assertTrue(captured["ua"].startswith("turkpin-python/"))
